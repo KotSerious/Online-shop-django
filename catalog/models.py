@@ -21,6 +21,30 @@ class Product(models.Model):
         ordering = ('product_name',)
 
 
+class Version(models.Model):
+    """
+    Модель для версии продукта
+    """
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Продукт')
+    version_number = models.AutoField(primary_key=True, verbose_name='Номер версии')
+    version_name = models.CharField(max_length=100, verbose_name='Наименовании версии')
+    is_valid = models.BooleanField(default=True, verbose_name='Признак версии')
+
+    def __str__(self):
+        """
+        Возвращение строкового представления объекта
+        """
+        return f'Версия: "{self.version_name}" ({self.version_number}) для продукта {self.product}'
+
+    class Meta:
+        """
+        Настройки для наименования объекта/объектов
+        """
+        verbose_name = 'Версия'
+        verbose_name_plural = 'Версии'
+        ordering = ('version_number',)
+
+
 class Category(models.Model):
     category_name = models.CharField(max_length=150, verbose_name='категория')
     description = models.CharField(max_length=400, verbose_name='описание', **NULLABLE)

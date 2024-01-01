@@ -12,8 +12,7 @@
     {% for object in object_list %}
     <div class="col-md-4">
         <div class="card mb-4 box-shadow">
-            <img src="{% mediapath object.preview %}"
-                 alt="Card image cap">
+            <img src="{% mediapath object.preview %}" alt="Card image cap">
             <div class="card-body">
                 <p class="card-text"><b>{{ object.title }}</b></p>
                 <p class="card-text">{{ object.content|truncatechars:100 }}</p>
