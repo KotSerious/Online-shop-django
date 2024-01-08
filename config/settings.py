@@ -144,3 +144,5 @@ EMAIL_HOST_PASSWORD = 'slclkwdtvsgeihlz'
 #EMAIL_HOST_PASSWORD = 'CRTSz7v4'
 EMAIL_USE_SSL = True
 EMAIL_USE_TLS = False
+
+LOGIN_URL = '/users/'

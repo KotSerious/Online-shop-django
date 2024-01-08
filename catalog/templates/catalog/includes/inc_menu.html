@@ -5,7 +5,6 @@
         <li><a href="{% url 'catalog:products' %}" class="text-white">Все товары</a></li>
         <li><a href="{% url 'catalog:list' %}" class="text-white">Блоги</a></li>
         <li><a href="{% url 'catalog:contacts' %}" class="text-white">Наши контакты</a></li>
-        <li></li>
         {% if user.is_authenticated %}
             <li><a href="{% url 'users:profile' %}" class="text-white">Профиль</a></li>
             <li><a href="{% url 'users:verification' %}" class="text-white">Подтвердить почту</a></li>

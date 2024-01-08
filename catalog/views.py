@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.forms import inlineformset_factory
 from django.shortcuts import render, reverse, HttpResponseRedirect
 from catalog.forms import ProductForm, VersionForm
@@ -34,15 +35,17 @@ class ContactsView(TemplateView):
         return super().get_context_data(**kwargs)
 
 
-class ProductListView(ListView):
+class ProductListView(PermissionRequiredMixin, ListView):
     model = Product
+    permission_required = 'catalog.view_product'
     extra_context = {
         'title': 'Полный список наших товаров',
     }
 
 
-class ProductsCategoryListView(ListView):
+class ProductsCategoryListView(PermissionRequiredMixin, ListView):
     model = Product
+    permission_required = 'catalog.change_product'
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -63,9 +66,10 @@ class ProductDetailView(DetailView):
     model = Product
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(PermissionRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
+    permission_required = 'catalog.add_product'
     success_url = reverse_lazy('catalog:products')
 
     def form_valid(self, form):
@@ -76,9 +80,10 @@ class ProductCreateView(CreateView):
         return super().form_valid(form)
 
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(PermissionRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
+    permission_required = 'catalog.change_product'
     success_url = reverse_lazy('catalog:category')
 
     def get_context_data(self, **kwargs):
@@ -91,6 +96,9 @@ class ProductUpdateView(UpdateView):
         context_data['formset'] = formset
         return context_data
 
+    def test_func(self):
+        return self.request.user.is_staff
+
     def form_valid(self, form):
         context_data = self.get_context_data()
         formset = context_data['formset']
@@ -100,15 +108,43 @@ class ProductUpdateView(UpdateView):
             formset.save()
         return super().form_valid(form)
 
-    success_url = reverse_lazy('catalog:products')
 
-
-class ProductDeleteView(DeleteView):
+class ProductModeratorUpdateView(PermissionRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Product
+    form_class = ProductForm
+    permission_required = 'catalog.change_product'
+    success_url = reverse_lazy('catalog:category')
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        VersionFormset = inlineformset_factory(Product, Version, form=VersionForm, extra=1)
+        if self.request.method == 'POST':
+            formset = VersionFormset(self.request.POST, instance=self.object)
+        else:
+            formset = VersionFormset(instance=self.object)
+        context_data['formset'] = formset
+        return context_data
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def form_valid(self, form):
+        context_data = self.get_context_data()
+        formset = context_data['formset']
+        self.object = form.save()
+        if formset.is_valid():
+            formset.instance = self.object
+            formset.save()
+        return super().form_valid(form)
+
+
+class ProductDeleteView(PermissionRequiredMixin, DeleteView):
+    model = Product
+    permission_required = 'catalog.delete_product'
     success_url = reverse_lazy('catalog:products')
 
 
-class BlogListView(ListView):
+class BlogListView(LoginRequiredMixin, ListView):
     model = Blog
 
     def get_queryset(self, *args, **kwargs):
@@ -117,7 +153,7 @@ class BlogListView(ListView):
         return queryset
 
 
-class BlogCreateView(CreateView):
+class BlogCreateView(LoginRequiredMixin, CreateView):
     model = Blog
     fields = ('title', 'content', 'preview',)
     success_url = reverse_lazy('catalog:list')
@@ -130,7 +166,7 @@ class BlogCreateView(CreateView):
         return super().form_valid(form)
 
 
-class BlogDetailView(DetailView):
+class BlogDetailView(LoginRequiredMixin, DetailView):
     model = Blog
 
     def get_object(self, queryset=None):
@@ -140,7 +176,7 @@ class BlogDetailView(DetailView):
         return self.object
 
 
-class BlogUpdateView(UpdateView):
+class BlogUpdateView(LoginRequiredMixin, UpdateView):
     model = Blog
     fields = ('title', 'content', 'preview',)
 
@@ -157,6 +193,6 @@ class BlogUpdateView(UpdateView):
         return reverse('catalog:view', args=[self.kwargs.get('pk')])
 
 
-class BlogDeleteView(DeleteView):
+class BlogDeleteView(LoginRequiredMixin, DeleteView):
     model = Blog
     success_url = reverse_lazy('catalog:list')

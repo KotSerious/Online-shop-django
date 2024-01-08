@@ -13,28 +13,37 @@
         {% for object in object_list %}
             <div class="col-md-4">
                 <div class="card mb-4 box-shadow">
-                    <img src="{% mediapath object.image %}"/>
-                    <div class="card-body">
-                        <p class="card-text">{{ object.product_name }} </p>
-                        <p class="card-text">{{ object.description|truncatechars:100 }} </p>
-                        <p class="card-text">{{ object.price }} руб.</p>
-                        <p class="card-text">{{ object.owner|default:"Народ" }}</p>
-                        <li>
-                            Версия: {% for version_item in object.version_set.all %}
-                            {% if version_item.is_valid %}
-                                {{ version_item.version_name }}
+                    {% if user.is_staff %}
+                        <img src="{% mediapath object.image %}"/>
+                        <div class="card-body">
+                            <p class="card-text">{{ object.product_name }} </p>
+                            <p class="card-text">{{ object.description|truncatechars:100 }} </p>
+                            <p class="card-text">{{ object.price }} руб.</p>
+                            <p class="card-text">{{ object.owner|default:"Народ" }}</p>
+                            <li>
+                                Версия: {% for version_item in object.version_set.all %}
+                                {% if version_item.is_valid %}
+                                    {{ version_item.version_name }}
+                                {% endif %}
+                            {% endfor %}
+                            </li>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'catalog:product' object.pk %}" type="button"
+                               class="btn btn-success">Просмотр</a>
+                            {% if perms.catalog.change_product and user == object.owner %}
+                                <a href="{% url 'catalog:product_update' object.pk %}" type="button"
+                                   class="btn btn-warning">Изменить</a>
+                            {% else %}
+                                <a href="{% url 'catalog:product_update_moderator' object.pk %}" type="button"
+                                   class="btn btn-warning">Редактировать</a>
                             {% endif %}
-                        {% endfor %}
-                        </li>
-                    </div>
-                    <div class="card-footer">
-                        <a href="{% url 'catalog:product' object.pk %}" type="button"
-                           class="btn btn-success">Просмотр</a>
-                        {% if user.verified %}
-                            <a href="{% url 'catalog:product_update' object.pk %}" type="button" class="btn btn-warning">Изменить</a>
-                            <a href="{% url 'catalog:product_delete' object.pk %}" type="button" class="btn btn-danger">Удалить</a>
-                        {% endif %}
-                    </div>
+                            {% if perms.catalog.delete_product %}
+                                <a href="{% url 'catalog:product_delete' object.pk %}" type="button"
+                                   class="btn btn-danger">Удалить</a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}
