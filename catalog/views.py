@@ -6,6 +6,7 @@ from catalog.models import Category, Product, Blog, Version
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView, DetailView
 from django.urls import reverse_lazy
 from pytils.translit import slugify
+from catalog.services import category_cache
 
 
 class CategoryListView(ListView):
@@ -14,6 +15,11 @@ class CategoryListView(ListView):
         'title': 'Категории наших товаров',
         'category_pk': Category('pk'),
     }
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['category'] = category_cache()
+        return context_data
 
 
 class ContactsView(TemplateView):
