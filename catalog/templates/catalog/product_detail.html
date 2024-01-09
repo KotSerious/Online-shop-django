@@ -1,0 +1,33 @@
+{% extends 'catalog/base.html' %}
+
+{% load my_tags %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row text-start">
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="card mb-4 box-shadow">
+                    <img src="{% mediapath object.image %}" />
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="card mb-4 box-shadow">
+                    <div class="card-body">
+                        <p class="card-text">Название: {{ object.product_name }}</p>
+                        <p class="card-text">Категория: {{ object.category }}</p>
+                        <p class="card-text">Цена: {{ object.price|floatformat:2 }} руб.</p>
+                        <p class="card-text">Описание модели: {{ object.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <a href="{% url 'catalog:contacts' %}" type="button"
+                                   class="btn btn-sm btn-outline-secondary">Оставить заявку на покупку</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
